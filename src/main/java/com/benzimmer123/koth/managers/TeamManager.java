@@ -286,7 +286,6 @@ public class TeamManager {
 			return new IridiumSkyblock();
 		case "SuperiorSkyblock2":
 			return new SuperiorSkyblock();
-		case "FactionsUUID":
 		case "SupremeFactions":
 			return new FactionsUUID();
 		case "SavageFactions":

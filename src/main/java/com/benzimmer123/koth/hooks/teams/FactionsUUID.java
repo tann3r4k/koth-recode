@@ -98,8 +98,7 @@ public class FactionsUUID implements TeamHook {
 			Method method = sb.getClass().getMethod("setDefaultSidebar", FSidebarProvider.class);
 			method.invoke(sb, new FDefaultSidebar());
 			sb.setSidebarVisibility(me.showScoreboard());
-		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| RuntimeException ignored) {
+		} catch (ReflectiveOperationException | RuntimeException ignored) {
 		}
 	}
 
