@@ -20,6 +20,7 @@ import com.benzimmer123.koth.hooks.teams.CrClans;
 import com.benzimmer123.koth.hooks.teams.FabledSkyblock;
 import com.benzimmer123.koth.hooks.teams.FactionsBridgeHook;
 import com.benzimmer123.koth.hooks.teams.FactionsUUID;
+import com.benzimmer123.koth.hooks.teams.FactionsUUIDModern;
 import com.benzimmer123.koth.hooks.teams.FactionsX;
 import com.benzimmer123.koth.hooks.teams.Feudal;
 import com.benzimmer123.koth.hooks.teams.GalacticSkyblock;
@@ -156,6 +157,8 @@ public class TeamManager {
 
 		if (Bukkit.getPluginManager().isPluginEnabled("FactionsBridge")) {
 			return new FactionsBridgeHook();
+		} else if (isModernFactionsUUID()) {
+			return new FactionsUUIDModern();
 		} else if (Bukkit.getPluginManager().isPluginEnabled("FactionsX")) {
 			return new FactionsX();
 		} else if (Bukkit.getPluginManager().isPluginEnabled("ASkyBlock")) {
@@ -174,8 +177,7 @@ public class TeamManager {
 				return new SavageFactions();
 			} else if (Bukkit.getServer().getPluginManager().getPlugin("Factions").getDescription().getAuthors().contains("Driftay")) {
 				return new SaberFactions();
-			} else if (Bukkit.getServer().getPluginManager().getPlugin("Factions").getDescription().getAuthors().contains("CmdrKittens")
-					|| ReflectionUtil.isPresent("com.massivecraft.factions.FactionsPlugin")) {
+			} else if (isLegacyFactionsUUID()) {
 				return new FactionsUUID();
 			} else if (Bukkit.getServer().getPluginManager().isPluginEnabled("MassiveCore")) {
 				return new MassiveCore();
@@ -250,10 +252,24 @@ public class TeamManager {
 		this.teamHook = teamHook;
 	}
 
+	private boolean isModernFactionsUUID() {
+		return Bukkit.getPluginManager().isPluginEnabled("FactionsUUID") || ReflectionUtil.isPresent("dev.kitteh.factions.FPlayers");
+	}
+
+	private boolean isLegacyFactionsUUID() {
+		if (!Bukkit.getPluginManager().isPluginEnabled("Factions")) {
+			return false;
+		}
+		List<String> authors = Bukkit.getPluginManager().getPlugin("Factions").getDescription().getAuthors();
+		return authors.contains("mbaxter") || authors.contains("CmdrKittens") || ReflectionUtil.isPresent("com.massivecraft.factions.FactionsPlugin");
+	}
+
 	private TeamHook getTeamHookFromString(String name) {
 		switch (name) {
 		case "FactionsBridge":
 			return new FactionsBridgeHook();
+		case "FactionsUUID":
+			return isModernFactionsUUID() ? new FactionsUUIDModern() : new FactionsUUID();
 		case "FactionsX":
 			return new FactionsX();
 		case "ASkyBlock":

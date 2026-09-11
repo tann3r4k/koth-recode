@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import com.benzimmer123.koth.hooks.face.TeamHook;
@@ -11,6 +12,7 @@ import com.benzimmer123.koth.util.LangUtil;
 import com.google.common.collect.Lists;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.scoreboards.FScoreboard;
@@ -19,51 +21,63 @@ import com.massivecraft.factions.scoreboards.sidebar.FDefaultSidebar;
 
 public class FactionsUUID implements TeamHook {
 
-	@Override
-	public boolean hasTeam(Player p) {
-		if (FPlayers.getInstance().getByPlayer(p) != null) {
-			FPlayer fp = FPlayers.getInstance().getByPlayer(p);
-			if (fp.getFaction() != null && !fp.getFaction().isWilderness()) {
-				return true;
-			}
+	private Faction faction(OfflinePlayer player) {
+		if (player == null) {
+			return null;
 		}
-		return false;
+		FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
+		if (fPlayer == null || !fPlayer.hasFaction()) {
+			return null;
+		}
+		Faction faction = fPlayer.getFaction();
+		if (faction == null || faction.isWilderness() || faction.isSafeZone() || faction.isWarZone()) {
+			return null;
+		}
+		return faction;
 	}
 
 	@Override
-	public String getTeamLeader(Player p) {
-		if (FPlayers.getInstance().getByPlayer(p) != null) {
-			FPlayer fp = FPlayers.getInstance().getByPlayer(p);
+	public boolean hasTeam(Player p) {
+		return faction(p) != null;
+	}
 
-			if (fp.getFaction() != null && fp.getFaction().getFPlayerAdmin() != null) {
-				return fp.getFaction().getFPlayerAdmin().getName();
-			}
-		}
-		return null;
+	@Override
+	public String getTeamID(Player p) {
+		return getTeamID((OfflinePlayer) p);
+	}
+
+	@Override
+	public String getTeamID(OfflinePlayer p) {
+		FPlayer fPlayer = p == null ? null : FPlayers.getInstance().getByOfflinePlayer(p);
+		Faction faction = faction(p);
+		return faction == null || fPlayer == null ? null : fPlayer.getFactionId();
 	}
 
 	@Override
 	public String getTeamName(Player p) {
-		if (FPlayers.getInstance().getByPlayer(p) != null) {
-			FPlayer fp = FPlayers.getInstance().getByPlayer(p);
+		Faction faction = faction(p);
+		return faction == null ? LangUtil.NO_TEAM.toString() : faction.getTag();
+	}
 
-			if (fp.getFaction() != null && !fp.getFaction().isWilderness()) {
-				return fp.getFaction().getTag();
-			}
+	@Override
+	public String getTeamLeader(Player p) {
+		Faction faction = faction(p);
+		if (faction == null || faction.getFPlayerAdmin() == null) {
+			return null;
 		}
-		return LangUtil.NO_TEAM.toString();
+		return faction.getFPlayerAdmin().getName();
 	}
 
 	@Override
 	public List<Player> getTeamPlayers(Player p) {
 		List<Player> teamPlayers = Lists.newArrayList();
-		if (FPlayers.getInstance().getByPlayer(p) != null) {
-			FPlayer fp = FPlayers.getInstance().getByPlayer(p);
-
-			if (fp.getFaction() != null && !fp.getFaction().isWilderness()) {
-				for (FPlayer fplayers : fp.getFaction().getFPlayersWhereOnline(true)) {
-					teamPlayers.add(fplayers.getPlayer());
-				}
+		Faction faction = faction(p);
+		if (faction == null) {
+			return teamPlayers;
+		}
+		for (FPlayer member : faction.getFPlayersWhereOnline(true)) {
+			if (member != null && member.getPlayer() != null) {
+				teamPlayers.add(member.getPlayer());
 			}
 		}
 		return teamPlayers;
@@ -71,30 +85,22 @@ public class FactionsUUID implements TeamHook {
 
 	public void toggleScoreboard(Player p) {
 		FPlayer me = FPlayers.getInstance().getByPlayer(p);
+		if (me == null) {
+			return;
+		}
 
-		if (FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
+		try {
+			if (!FactionsPlugin.getInstance().conf().scoreboard().constant().isEnabled()) {
+				return;
+			}
 			FScoreboard.init(me);
 			FScoreboard sb = FScoreboard.get(me);
-			Method method;
-
-			try {
-				method = sb.getClass().getMethod("setDefaultSidebar", FSidebarProvider.class);
-				method.invoke(sb, new FDefaultSidebar());
-			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				e.printStackTrace();
-			}
-
+			Method method = sb.getClass().getMethod("setDefaultSidebar", FSidebarProvider.class);
+			method.invoke(sb, new FDefaultSidebar());
 			sb.setSidebarVisibility(me.showScoreboard());
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| RuntimeException ignored) {
 		}
-	}
-
-	@Override
-	public String getTeamID(Player p) {
-		if (hasTeam(p)) {
-			com.massivecraft.factions.FPlayer fp = com.massivecraft.factions.FPlayers.getInstance().getByPlayer(p);
-			return fp.getFactionId();
-		}
-		return null;
 	}
 
 	@Override
@@ -104,9 +110,10 @@ public class FactionsUUID implements TeamHook {
 
 	@Override
 	public boolean exists(String id) {
-		com.massivecraft.factions.Faction fac = Factions.getInstance().getFactionById(id);
-		if (fac == null || fac.isWilderness() || fac.isSafeZone() || fac.isWarZone())
+		if (id == null) {
 			return false;
-		return true;
+		}
+		Faction fac = Factions.getInstance().getFactionById(id);
+		return fac != null && !fac.isWilderness() && !fac.isSafeZone() && !fac.isWarZone();
 	}
 }

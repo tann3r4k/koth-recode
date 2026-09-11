@@ -9,6 +9,7 @@ import com.benzimmer123.koth.KOTH;
 import com.benzimmer123.koth.api.objects.KOTHArena;
 import com.benzimmer123.koth.api.objects.KOTHPlayer;
 import com.benzimmer123.koth.handlers.KOTHHandler;
+import com.benzimmer123.koth.hooks.face.TeamHook;
 import com.benzimmer123.koth.hooks.other.PremiumVanish;
 import com.benzimmer123.koth.obj.koth.serial.MemoryCuboid;
 import com.benzimmer123.koth.util.BroadcastUtil;
@@ -52,8 +53,8 @@ public class KOTHManager {
 	}
 
 	private boolean allowFullTeamCapture() {
-		if (KOTH.getInstance().getTeamManager().getAPI() != null && "FactionsBridge".equals(KOTH.getInstance().getTeamManager().getAPI()
-				.getAPIName()))
+		TeamHook hook = KOTH.getInstance().getTeamManager().getAPI();
+		if (hook != null && ("FactionsBridge".equals(hook.getAPIName()) || "FactionsUUID".equals(hook.getAPIName())))
 			return true;
 		return KOTH.getInstance().getConfig().getBoolean("ALLOW_FULL_TEAM_CAPTURE", true);
 	}
@@ -166,8 +167,9 @@ public class KOTHManager {
 		Player teamPlayer = checkTeamLocations(koth);
 
 		if (teamPlayer == null) {
-			if (KOTH.getInstance().getConfig().getInt("DELAYED_PLAYER_LOSE_CAPTURE") != -1) {
-				KOTHPlayer kothPlayer = KOTHHandler.getInstance().getKOTHPlayer(koth.getPlayerCapper());
+			Player current = koth.getPlayerCapper();
+			if (current != null && KOTH.getInstance().getConfig().getInt("DELAYED_PLAYER_LOSE_CAPTURE") != -1) {
+				KOTHPlayer kothPlayer = KOTHHandler.getInstance().getKOTHPlayer(current);
 				if (!kothPlayer.hasKOTHTimeout()) {
 					long cooldown = KOTH.getInstance().getConfig().getInt("DELAYED_PLAYER_LOSE_CAPTURE") * 1000;
 					long endTime = System.currentTimeMillis() + cooldown;

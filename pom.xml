@@ -73,6 +73,7 @@
 				<configuration>
 					<excludes>
 						<exclude>cc/javajobs/**</exclude>
+						<exclude>dev/kitteh/**</exclude>
 						<exclude>be/**</exclude>
 						<exclude>me/**</exclude>
 						<exclude>com/massivecraft/**</exclude>
