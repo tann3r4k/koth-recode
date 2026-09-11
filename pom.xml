@@ -72,6 +72,7 @@
 				<version>3.4.2</version>
 				<configuration>
 					<excludes>
+						<exclude>cc/javajobs/**</exclude>
 						<exclude>be/**</exclude>
 						<exclude>me/**</exclude>
 						<exclude>com/massivecraft/**</exclude>

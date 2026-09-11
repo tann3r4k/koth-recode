@@ -167,14 +167,19 @@ public class MemoryKOTHArena implements KOTHArena, Serializable {
 	public void callCapperTasks() {
 		Bukkit.getScheduler().runTask(KOTH.getInstance(), () -> {
 			if (getCapper() != null) {
-				KOTHPlayer kothPlayer = KOTHHandler.getInstance().getKOTHPlayer(getPlayerCapper());
+				Player current = getPlayerCapper();
+				if (current == null) {
+					KOTH.getInstance().getKOTHManager().lostControl(this);
+					return;
+				}
+
+				KOTHPlayer kothPlayer = KOTHHandler.getInstance().getKOTHPlayer(current);
 
 				if (KOTH.getInstance().getKOTHManager().checkDelayedLoseCapture(kothPlayer, this)) {
 					return;
 				}
 
-				if (Bukkit.getPlayer(getCapper()) == null || getPlayerCapper().isDead() || !contains(getPlayerCapper().getLocation()) || kothPlayer
-						.inBypassMode()) {
+				if (current.isDead() || !contains(current.getLocation()) || kothPlayer.inBypassMode()) {
 					KOTH.getInstance().getKOTHManager().lostControl(this);
 				} else {
 					if (KOTH.getInstance().getKOTHManager().checkCapture(this)) {

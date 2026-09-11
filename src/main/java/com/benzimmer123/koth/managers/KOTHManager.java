@@ -51,14 +51,23 @@ public class KOTHManager {
 		return validCapture;
 	}
 
-	private Player checkTeamLocations(Player p, KOTHArena koth) {
-		if (!KOTH.getInstance().getConfig().getBoolean("ALLOW_FULL_TEAM_CAPTURE") || p == null)
+	private boolean allowFullTeamCapture() {
+		if (KOTH.getInstance().getTeamManager().getAPI() != null && "FactionsBridge".equals(KOTH.getInstance().getTeamManager().getAPI()
+				.getAPIName()))
+			return true;
+		return KOTH.getInstance().getConfig().getBoolean("ALLOW_FULL_TEAM_CAPTURE", true);
+	}
+
+	private Player checkTeamLocations(KOTHArena koth) {
+		if (!allowFullTeamCapture() || koth.getCapper() == null)
 			return null;
 
-		List<Player> teamPlayers = KOTH.getInstance().getTeamManager().getTeamPlayers(p);
+		String teamId = KOTH.getInstance().getTeamManager().getTeamID(koth.getCapper());
+		if (teamId == null)
+			return null;
 
-		for (Player player : teamPlayers) {
-			if (koth.contains(player.getLocation())) {
+		for (Player player : getValidCapturers(koth)) {
+			if (teamId.equals(KOTH.getInstance().getTeamManager().getTeamID(player))) {
 				return player;
 			}
 		}
@@ -154,7 +163,7 @@ public class KOTHManager {
 	}
 
 	public void lostControl(KOTHArena koth) {
-		Player teamPlayer = checkTeamLocations(koth.getPlayerCapper(), koth);
+		Player teamPlayer = checkTeamLocations(koth);
 
 		if (teamPlayer == null) {
 			if (KOTH.getInstance().getConfig().getInt("DELAYED_PLAYER_LOSE_CAPTURE") != -1) {

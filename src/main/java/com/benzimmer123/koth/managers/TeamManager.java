@@ -18,6 +18,7 @@ import com.benzimmer123.koth.hooks.teams.BetterTeams;
 import com.benzimmer123.koth.hooks.teams.Clans;
 import com.benzimmer123.koth.hooks.teams.CrClans;
 import com.benzimmer123.koth.hooks.teams.FabledSkyblock;
+import com.benzimmer123.koth.hooks.teams.FactionsBridgeHook;
 import com.benzimmer123.koth.hooks.teams.FactionsUUID;
 import com.benzimmer123.koth.hooks.teams.FactionsX;
 import com.benzimmer123.koth.hooks.teams.Feudal;
@@ -69,6 +70,19 @@ public class TeamManager {
 			return getAPI().getTeamID(p);
 		} catch (Throwable e) {
 			throw new TeamHookException("Failed to get team members due to incompatible versions. Disabling " + teamHook.getAPIName() + " hook.", e);
+		}
+	}
+
+	public String getTeamID(String playerName) {
+		if (getAPI() == null || playerName == null)
+			return null;
+		Player online = Bukkit.getPlayer(playerName);
+		if (online != null)
+			return getTeamID(online);
+		try {
+			return getAPI().getTeamID(Bukkit.getOfflinePlayer(playerName));
+		} catch (Throwable e) {
+			return null;
 		}
 	}
 
@@ -140,7 +154,9 @@ public class TeamManager {
 			return teamHook;
 		}
 
-		if (Bukkit.getPluginManager().isPluginEnabled("FactionsX")) {
+		if (Bukkit.getPluginManager().isPluginEnabled("FactionsBridge")) {
+			return new FactionsBridgeHook();
+		} else if (Bukkit.getPluginManager().isPluginEnabled("FactionsX")) {
 			return new FactionsX();
 		} else if (Bukkit.getPluginManager().isPluginEnabled("ASkyBlock")) {
 			if (Bukkit.getServer().getPluginManager().getPlugin("ASkyBlock").getDescription().getAuthors().contains("Joseph#0278 (Discord)")) {
@@ -236,6 +252,8 @@ public class TeamManager {
 
 	private TeamHook getTeamHookFromString(String name) {
 		switch (name) {
+		case "FactionsBridge":
+			return new FactionsBridgeHook();
 		case "FactionsX":
 			return new FactionsX();
 		case "ASkyBlock":

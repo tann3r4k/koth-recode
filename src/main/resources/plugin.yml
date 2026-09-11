@@ -4,7 +4,7 @@ main: com.benzimmer123.koth.KOTH
 authors: [benzimmer123]
 api-version: '26.2'
 description: Updated Paper 26.2 build of Benzimmer's abandoned KOTH plugin.
-softdepend: [CrClans, SimpleScore, UClans, mcMMO, SimpleClans, BossBarAPI, PlaceholderAPI, Towny, MVdWPlaceholderAPI, TitleManager, Factions, ASkyblock, Guilds, Lands, Clans, QuickBoard, FeatherBoard, Featherboard, GangsPlus, BentoBox, AdvancedClans, FabledSkyBlock, KiteBoard, CombatLogX, AnimatedScoreboard, TAB, Feudal, FactionsX, UltraPrisonCore, UltimateClans, MassiveCore, KingdomCraft, IridiumSkyblock, WorldGuard, SuperVanish, PremiumVanish]
+softdepend: [FactionsBridge, CrClans, SimpleScore, UClans, mcMMO, SimpleClans, BossBarAPI, PlaceholderAPI, Towny, MVdWPlaceholderAPI, TitleManager, Factions, ASkyblock, Guilds, Lands, Clans, QuickBoard, FeatherBoard, Featherboard, GangsPlus, BentoBox, AdvancedClans, FabledSkyBlock, KiteBoard, CombatLogX, AnimatedScoreboard, TAB, Feudal, FactionsX, UltraPrisonCore, UltimateClans, MassiveCore, KingdomCraft, IridiumSkyblock, WorldGuard, SuperVanish, PremiumVanish]
 commands:
   koth:
     description: All of this KOTHs commands.

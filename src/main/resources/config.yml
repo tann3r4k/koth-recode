@@ -248,7 +248,7 @@ DELAYED_PLAYER_LOSE_CAPTURE: -1
   
 ALLOW_NO_TEAM_CAPTURE: true # Set this to false to disable players without a team to capture
 
-ALLOW_FULL_TEAM_CAPTURE: false # Set this to true to allow a whole team to capture rather than a player
+ALLOW_FULL_TEAM_CAPTURE: true # Set this to true to allow a whole team to capture rather than a player
 
 PAUSE_OTHER_TEAMS: false # Pause capture if another team is stood on the zone  
 
