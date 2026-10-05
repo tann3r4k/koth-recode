@@ -82,7 +82,13 @@ public class ScoreboardManager {
 			return;
 		}
 
-		if (isLoaded("Featherboard")) {
+		if (isLoaded("TAB")) {
+			if (!kothPlayer.hasFeatherboardDisplayed()) {
+				((com.benzimmer123.koth.hooks.scoreboard.TabPremium) scoreboardsLoaded.get("TAB")).showKoth(player);
+				kothPlayer.setFeatherboardDisplayed(true);
+			}
+			return;
+		} else if (isLoaded("Featherboard") && KOTH.getInstance().getConfig().getBoolean("FEATHERBOARD_TRIGGER.ENABLED")) {
 			if (!kothPlayer.hasFeatherboardDisplayed()) {
 				new Featherboard().displayTrigger(player);
 				kothPlayer.setFeatherboardDisplayed(true);
@@ -148,6 +154,7 @@ public class ScoreboardManager {
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("TAB")) {
 			scoreboardsLoaded.put("TAB", new TabPremium());
+			LoggerUtil.success("[KOTH] Using TAB scoreboard. KOTH's own sidebar stays off while TAB is loaded.");
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("SimpleScore")) {
 			scoreboardsLoaded.put("SimpleScore", new SimpleScoreboard());
@@ -190,7 +197,13 @@ public class ScoreboardManager {
 	}
 
 	public void removeScoreboard(Player player, KOTHPlayer kothPlayer) {
-		if (isLoaded("Featherboard")) {
+		if (isLoaded("TAB")) {
+			if (kothPlayer.hasFeatherboardDisplayed()) {
+				scoreboardsLoaded.get("TAB").giveScoreboard(player);
+				kothPlayer.setFeatherboardDisplayed(false);
+			}
+			return;
+		} else if (isLoaded("Featherboard") && KOTH.getInstance().getConfig().getBoolean("FEATHERBOARD_TRIGGER.ENABLED")) {
 			if (kothPlayer.hasFeatherboardDisplayed()) {
 				new Featherboard().giveScoreboard(player);
 				kothPlayer.setFeatherboardDisplayed(false);

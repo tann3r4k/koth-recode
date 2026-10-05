@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.benzimmer123</groupId>
 	<artifactId>koth</artifactId>
-	<version>7.0.0</version>
+	<version>7.1.0</version>
 	<packaging>jar</packaging>
 	<name>KOTH</name>
 	<description>Paper 26.2 update of Benzimmer's abandoned KOTH plugin.</description>
