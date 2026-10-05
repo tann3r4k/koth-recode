@@ -12,11 +12,6 @@ import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.scoreboard.Scoreboard;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 
-/**
- * Shows a KOTH board through TAB, then hands the sidebar back to the
- * scoreboard defined in TAB's config. Matches the live CherryMC board:
- * MiniMessage title, small-cap labels, and {@code ||} number format.
- */
 public class TabPremium implements ScoreboardHook {
 
 	private static final String NAME = "koth";
