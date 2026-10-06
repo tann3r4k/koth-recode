@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bukkit.entity.Player;
 
+import com.benzimmer123.koth.KOTH;
 import com.benzimmer123.koth.hooks.face.ScoreboardHook;
 import com.benzimmer123.koth.util.LoggerUtil;
 
@@ -16,20 +17,7 @@ public class TabPremium implements ScoreboardHook {
 
 	private static boolean loggedFailure;
 	private static final String NAME = "koth";
-	private static final String TITLE = "<#FAFAFA>KOTH</#A1A1AA>";
-	private static final List<String> LINES = List.of(
-			"<#3F3F46>&m                    </#A1A1AA>||",
-			"&8&lKOTH||",
-			"&7ɴᴀᴍᴇ||&f%koth_active%",
-			"&7ᴛɪᴍᴇ||&f%koth_time_left%",
-			"&7ᴘʟᴀʏᴇʀ||&f%koth_capping_players%",
-			"&7ᴛᴇᴀᴍ||&f%koth_capping_teams%",
-			"",
-			"&8&lLocation||",
-			"&7x||&f%koth_coordinate_x%",
-			"&7ʏ||&f%koth_coordinate_y%",
-			"&7ᴢ||&f%koth_coordinate_z%",
-			"<#A1A1AA>&m                    </#3F3F46>||");
+	private static final int MAX_LINES = 15;
 
 	public boolean showKoth(Player player) {
 		ScoreboardManager manager = manager();
@@ -39,7 +27,7 @@ public class TabPremium implements ScoreboardHook {
 		}
 		Scoreboard board = manager.getRegisteredScoreboards().get(NAME);
 		if (board == null) {
-			board = manager.createScoreboard(NAME, TITLE, LINES);
+			board = manager.createScoreboard(NAME, title(), lines());
 		}
 		manager.showScoreboard(tabPlayer, board);
 		return true;
@@ -52,6 +40,19 @@ public class TabPremium implements ScoreboardHook {
 			return;
 		}
 		manager.resetScoreboard(tabPlayer);
+	}
+
+	private String title() {
+		String configured = KOTH.getInstance().getConfig().getString("SCOREBOARD.SCOREBOARD_TITLE");
+		return configured == null || configured.isEmpty() ? "KOTH" : configured;
+	}
+
+	private List<String> lines() {
+		List<String> configured = KOTH.getInstance().getConfig().getStringList("SCOREBOARD.SCOREBOARD_LINES");
+		if (configured.size() <= MAX_LINES) {
+			return configured;
+		}
+		return configured.subList(0, MAX_LINES);
 	}
 
 	private ScoreboardManager manager() {
