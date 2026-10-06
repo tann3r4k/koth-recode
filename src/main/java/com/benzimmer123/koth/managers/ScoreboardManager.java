@@ -83,10 +83,15 @@ public class ScoreboardManager {
 		}
 
 		if (isLoaded("TAB")) {
-			if (!kothPlayer.hasFeatherboardDisplayed()) {
-				((com.benzimmer123.koth.hooks.scoreboard.TabPremium) scoreboardsLoaded.get("TAB")).showKoth(player);
-				kothPlayer.setFeatherboardDisplayed(true);
-			}
+			KOTHPlayer viewer = kothPlayer;
+			onMain(() -> {
+				if (!player.isOnline() || viewer.hasFeatherboardDisplayed()) {
+					return;
+				}
+				if (((TabPremium) scoreboardsLoaded.get("TAB")).showKoth(player)) {
+					viewer.setFeatherboardDisplayed(true);
+				}
+			});
 			return;
 		} else if (isLoaded("Featherboard") && KOTH.getInstance().getConfig().getBoolean("FEATHERBOARD_TRIGGER.ENABLED")) {
 			if (!kothPlayer.hasFeatherboardDisplayed()) {
@@ -199,8 +204,10 @@ public class ScoreboardManager {
 	public void removeScoreboard(Player player, KOTHPlayer kothPlayer) {
 		if (isLoaded("TAB")) {
 			if (kothPlayer.hasFeatherboardDisplayed()) {
-				scoreboardsLoaded.get("TAB").giveScoreboard(player);
-				kothPlayer.setFeatherboardDisplayed(false);
+				onMain(() -> {
+					scoreboardsLoaded.get("TAB").giveScoreboard(player);
+					kothPlayer.setFeatherboardDisplayed(false);
+				});
 			}
 			return;
 		} else if (isLoaded("Featherboard") && KOTH.getInstance().getConfig().getBoolean("FEATHERBOARD_TRIGGER.ENABLED")) {
@@ -317,6 +324,14 @@ public class ScoreboardManager {
 
 	public boolean isLoaded(String scoreboardPluginName) {
 		return scoreboardsLoaded.containsKey(scoreboardPluginName);
+	}
+
+	private void onMain(Runnable task) {
+		if (Bukkit.isPrimaryThread()) {
+			task.run();
+		} else {
+			Bukkit.getScheduler().runTask(KOTH.getInstance(), task);
+		}
 	}
 
 	public boolean isScoreboardDisabled() {

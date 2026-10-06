@@ -14,6 +14,7 @@ import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 
 public class TabPremium implements ScoreboardHook {
 
+	private static boolean loggedFailure;
 	private static final String NAME = "koth";
 	private static final String TITLE = "<#FAFAFA>KOTH</#A1A1AA>";
 	private static final List<String> LINES = List.of(
@@ -30,17 +31,18 @@ public class TabPremium implements ScoreboardHook {
 			"&7ᴢ||&f%koth_coordinate_z%",
 			"<#A1A1AA>&m                    </#3F3F46>||");
 
-	public void showKoth(Player player) {
+	public boolean showKoth(Player player) {
 		ScoreboardManager manager = manager();
 		TabPlayer tabPlayer = tabPlayer(player);
 		if (manager == null || tabPlayer == null) {
-			return;
+			return false;
 		}
 		Scoreboard board = manager.getRegisteredScoreboards().get(NAME);
 		if (board == null) {
 			board = manager.createScoreboard(NAME, TITLE, LINES);
 		}
 		manager.showScoreboard(tabPlayer, board);
+		return true;
 	}
 
 	public void reset(Player player) {
@@ -57,7 +59,10 @@ public class TabPremium implements ScoreboardHook {
 			TabAPI api = TabAPI.getInstance();
 			return api == null ? null : api.getScoreboardManager();
 		} catch (Throwable thrown) {
-			LoggerUtil.warning("[KOTH] TAB scoreboard API is not ready.");
+			if (!loggedFailure) {
+				loggedFailure = true;
+				LoggerUtil.warning("[KOTH] TAB scoreboard API failed: " + thrown);
+			}
 			return null;
 		}
 	}

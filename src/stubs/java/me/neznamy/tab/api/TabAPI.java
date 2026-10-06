@@ -4,12 +4,13 @@ import java.util.UUID;
 
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 
-public interface TabAPI {
-	static TabAPI getInstance() {
+public abstract class TabAPI {
+
+	public static TabAPI getInstance() {
 		return null;
 	}
 
-	TabPlayer getPlayer(UUID uuid);
+	public abstract TabPlayer getPlayer(UUID uuid);
 
-	ScoreboardManager getScoreboardManager();
+	public abstract ScoreboardManager getScoreboardManager();
 }
